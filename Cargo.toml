@@ -1,0 +1,6 @@
+[workspace]
+resolver = "3"
+members = ["vulpes", "main"]
+
+[workspace.dependencies]
+tokio = { version = "1.46.1", features = ["full"] }
