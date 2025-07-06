@@ -1,14 +1,13 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+pub mod agent;
+pub mod context;
+pub mod protocol;
+pub mod session;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub use agent::Agent;
+pub use context::Context;
+pub use session::Session;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub trait Handler {
+    /// Return None to terminate
+    fn prompt(&self) -> Option<String>;
 }
