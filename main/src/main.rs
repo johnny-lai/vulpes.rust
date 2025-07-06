@@ -1,32 +1,39 @@
 use rustyline::DefaultEditor;
-use std::cell::RefCell;
+use std::sync::Mutex;
 use vulpes::{Handler, Session};
 
 struct ReadlineHandler {
-    editor: RefCell<DefaultEditor>,
+    editor: Mutex<DefaultEditor>,
 }
 
 impl ReadlineHandler {
     fn new() -> rustyline::Result<Self> {
         let editor = DefaultEditor::new()?;
-        Ok(Self { editor: RefCell::new(editor) })
+        Ok(Self { editor: Mutex::new(editor) })
     }
 }
 
+#[async_trait::async_trait]
 impl Handler for ReadlineHandler {
-    fn prompt(&self) -> Option<String> {
-        match self.editor.borrow_mut().readline("> ") {
-            Ok(line) => {
-                let trimmed = line.trim();
-                if trimmed == "quit" || trimmed == "exit" {
-                    None
-                } else if trimmed.is_empty() {
-                    self.prompt() // Try again for empty input
-                } else {
-                    Some(trimmed.to_string())
+    async fn prompt(&self) -> Option<String> {
+        loop {
+            let result = {
+                self.editor.lock().unwrap().readline("> ")
+            };
+            
+            match result {
+                Ok(line) => {
+                    let trimmed = line.trim();
+                    if trimmed == "quit" || trimmed == "exit" {
+                        return None;
+                    } else if trimmed.is_empty() {
+                        continue; // Try again for empty input
+                    } else {
+                        return Some(trimmed.to_string());
+                    }
                 }
+                Err(_) => return None,
             }
-            Err(_) => None,
         }
     }
 }
@@ -37,7 +44,7 @@ async fn main() -> rustyline::Result<()> {
     
     let mut session = Session::new();
     session.handler(Box::new(handler));
-    session.start();
+    session.start().await;
     
     Ok(())
 }

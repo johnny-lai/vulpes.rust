@@ -14,4 +14,8 @@ impl Context {
     pub fn push(&mut self, message: Message) {
         self.messages.push(message);
     }
+
+    pub fn messages(&self) -> &Vec<Message> {
+        &self.messages
+    }
 }

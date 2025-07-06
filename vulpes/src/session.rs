@@ -24,7 +24,7 @@ impl Session {
         self
     }
 
-    pub fn start(&mut self) {
+    pub async fn start(&mut self) {
         let handler = match self.handler.as_mut() {
             Some(handler) => handler,
             None => return,
@@ -33,7 +33,7 @@ impl Session {
         let mut context = Context::new();
 
         loop {
-            match handler.prompt() {
+            match handler.prompt().await {
                 Some(prompt) => {
                     context.push(Message {
                         role: "user".into(),
