@@ -1,5 +1,6 @@
 use crate::protocol::*;
 use crate::{Agent, Context};
+use anyhow::Result;
 use reqwest;
 
 pub struct Ollama {
@@ -18,7 +19,7 @@ impl Ollama {
 
 #[async_trait::async_trait]
 impl Agent for Ollama {
-    async fn chat(&self, context: &Context) -> Response {
+    async fn chat(&self, context: &Context) -> Result<Response> {
         let client = reqwest::Client::new();
 
         let request = Request {
@@ -37,6 +38,6 @@ impl Agent for Ollama {
 
         let response_text = response.text().await.unwrap();
         let chat_response: Response = serde_json::from_str(&response_text).unwrap();
-        chat_response
+        Ok(chat_response)
     }
 }
