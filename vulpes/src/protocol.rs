@@ -40,3 +40,14 @@ pub struct Message {
     pub role: String,
     pub content: String,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum Tool {
+    Function {
+        name: String,
+        title: Option<String>,
+        description: String,
+        #[serde(rename = "inputSchema")]
+        input_schema: Value,
+    },
+}

@@ -25,7 +25,7 @@ impl Agent for Ollama {
         let request = Request {
             model: self.model.clone(),
             messages: context.messages().to_vec(),
-            tools: Vec::new(),
+            tools: context.tools(),
             stream: false,
         };
 

@@ -37,18 +37,23 @@ impl Session {
         };
 
         let mut context = Context::new();
-
+        let mut prompt_user = true;
         loop {
-            match handler.prompt().await {
-                Some(prompt) => {
-                    context.push(Message {
-                        role: "user".into(),
-                        content: prompt.into(),
-                    });
+            // Check if we should prompt the user
+            if prompt_user {
+                match handler.prompt().await {
+                    Some(prompt) => {
+                        context.push(Message {
+                            role: "user".into(),
+                            content: prompt.into(),
+                        });
+                    }
+                    None => break,
                 }
-                None => break,
             }
-            // TODO: Loop until done?
+
+            // Assume we want to prompt the user for next steps
+            prompt_user = true;
             match agent.chat(&context).await {
                 Ok(response) => {
                     context.push(Message {
@@ -74,6 +79,10 @@ impl Session {
                                 println!("Error while executing tool: {}", err);
                             }
                         }
+
+                        // If there is tool usage, we want to check with the
+                        // agent for next steps.
+                        prompt_user = false;
                     }
                 }
                 Err(err) => {
