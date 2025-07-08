@@ -37,6 +37,14 @@ impl Session {
         };
 
         let mut context = Context::new();
+
+        // System prompt
+        let prompt = r#""#;
+        context.push(Message {
+            role: "user".into(),
+            content: prompt.into(),
+        });
+
         let mut prompt_user = true;
         loop {
             // Check if we should prompt the user
@@ -63,12 +71,12 @@ impl Session {
 
                     handler.response(&response.message.content).await;
 
-                    for tool_call in &response.message.tool_calls {
+                    for tool_call in response.message.tool_calls {
                         if !handler.allow_tool(&tool_call).await {
                             break;
                         }
 
-                        match tool::call(&tool_call).await {
+                        match context.call_tool(tool_call).await {
                             Ok(output) => {
                                 context.push(Message {
                                     role: "assistant".into(),
@@ -76,6 +84,13 @@ impl Session {
                                 });
                             }
                             Err(err) => {
+                                context.push(Message {
+                                    role: "assistant".into(),
+                                    content: format!(
+                                        "Tool result: Error while executing tool: {}",
+                                        err
+                                    ),
+                                });
                                 println!("Error while executing tool: {}", err);
                             }
                         }

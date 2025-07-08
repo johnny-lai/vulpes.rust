@@ -5,13 +5,9 @@ mod shell;
 
 pub use shell::*;
 
-pub async fn call(tool_call: &ToolCall) -> Result<String> {
-    let _tool_name = &tool_call.function.name;
-    Ok("".into())
-}
-
 #[async_trait::async_trait]
 pub trait Tool: Send + Sync {
+    fn name(&self) -> String;
     fn definition(&self) -> Value;
     async fn call(&self, arguments: Value) -> Result<String>;
 }

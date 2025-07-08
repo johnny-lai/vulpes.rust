@@ -14,14 +14,17 @@ impl ShellExecute {
 
 #[async_trait::async_trait]
 impl Tool for ShellExecute {
+    fn name(&self) -> String {
+        "execute_command".into()
+    }
+
     fn definition(&self) -> Value {
         // TODO: Description should specify the correct shell
         json!({
             "type": "function",
             "function": {
-                "name": "shell_execute",
-                "title": null,
-                "description": "Execute commands using the bash shell",
+                "name": self.name(),
+                "description": "Execute commands using the bash shell",,
                 "input_schema": {
                     "type": "object",
                     "properties": {
@@ -95,11 +98,15 @@ impl ReadFile {
 
 #[async_trait::async_trait]
 impl Tool for ReadFile {
+    fn name(&self) -> String {
+        "read_file".into()
+    }
+
     fn definition(&self) -> Value {
         json!({
             "type": "function",
             "function": {
-                "name": "read_file",
+                "name": self.name(),
                 "description": "Read the contents of a file",
                 "parameters": {
                     "type": "object",
